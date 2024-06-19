@@ -29,9 +29,7 @@ jobs:
         arch="$(uname -m)"
         release_url="https://github.com/firecracker-microvm/firecracker/releases"
         latest_version="$(basename $(curl -fsSL -o /dev/null -w %{url_effective} "${release_url}/latest"))"
-        curl -fsSL "${release_url}/download/${latest_version}/firecracker-${latest_version}-${arch}.tgz"
-        tar -xf "firecracker-${latest_version}-${arch}.tgz"
+        curl -fsSL "${release_url}/download/${latest_version}/firecracker-${latest_version}-${arch}.tgz" \
+        | tar -xz "release-${latest_version}-${arch}/firecracker-${latest}-${arch}"
         mv "release-${latest_version}-${arch}/firecracker-${latest}-${arch}" firecracker
-        rm -f "firecracker-${latest_version}-${arch}.tgz"
-        rm -fr "release-${latest_version}-${arch}"
         firecracker --version
