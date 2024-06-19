@@ -1,0 +1,36 @@
+name: CI
+on:
+  push:
+    branches:
+    - 'main'
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref | github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Check KVM Kernel Modules
+      run: lsmod | grep kvm
+    - name: Enable KVM Group Permission
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
+    - name: Install Firecracker
+      run: |
+        arch="$(uname -m)"
+        release_url="https://github.com/firecracker-microvm/firecracker/releases"
+        latest_version="$(basename $(curl -fsSL -o /dev/null -w %{url_effective} "${release_url}/latest"))"
+        curl -fsSL "${release_url}/download/${latest_version}/firecracker-${latest_version}-${arch}.tgz"
+        tar -xf "firecracker-${latest_version}-${arch}.tgz"
+        mv "release-${latest_version}-${arch}/firecracker-${latest}-${arch}" firecracker
+        rm -f "firecracker-${latest_version}-${arch}.tgz"
+        rm -fr "release-${latest_version}-${arch}"
+        firecracker --version
