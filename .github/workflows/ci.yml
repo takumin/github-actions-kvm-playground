@@ -32,4 +32,5 @@ jobs:
         curl -fsSL "${release_url}/download/${latest_version}/firecracker-${latest_version}-${arch}.tgz" \
         | tar -xz "release-${latest_version}-${arch}/firecracker-${latest_version}-${arch}"
         mv "release-${latest_version}-${arch}/firecracker-${latest_version}-${arch}" firecracker
+        ls -lah
         firecracker --version
